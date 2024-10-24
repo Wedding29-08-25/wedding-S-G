@@ -1,55 +1,78 @@
-// Importa le funzioni necessarie da Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getFirestore, collection, addDoc, orderBy, query, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+// Funzione per aggiungere l'immagine alla galleria con commenti
+function addPhotoToGallery(imgUrl, photoId) {
+    const photoContainer = document.createElement('div');
+    photoContainer.classList.add('photo-container');
 
-// Configurazione di Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyAP2VpQb0xCyOivdpfjP5YAkb8IEV-ebIM",
-  authDomain: "wedding-seg.firebaseapp.com",
-  projectId: "wedding-seg",
-  storageBucket: "wedding-seg.appspot.com",
-  messagingSenderId: "668516668494",
-  appId: "1:668516668494:web:81f361bea8923b3d869f1f",
-  measurementId: "G-8CER5L9FRS"
-};
+    const img = document.createElement('img');
+    img.src = imgUrl;
+    img.alt = 'Foto Matrimonio';
+    img.addEventListener('click', () => openLightbox(imgUrl)); // Aggiungi l'evento per aprire la lightbox
 
-// Inizializza Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    const commentSection = document.createElement('div');
+    commentSection.classList.add('comment-section');
 
-// Funzione per salvare l'URL dell'immagine su Firestore
-async function saveImageUrlToFirestore(imgUrl) {
+    const commentInput = document.createElement('input');
+    commentInput.type = 'text';
+    commentInput.placeholder = 'Lascia un commento...';
+    commentInput.classList.add('comment-input');
+
+    const submitCommentBtn = document.createElement('button');
+    submitCommentBtn.textContent = 'Invia';
+    submitCommentBtn.classList.add('comment-button');
+
+    // Listener per salvare i commenti su Firestore
+    submitCommentBtn.addEventListener('click', () => {
+        const commentText = commentInput.value.trim();
+        if (commentText) {
+            saveCommentToFirestore(photoId, commentText);
+            commentInput.value = ''; // Pulisce il campo dopo l'invio
+        }
+    });
+
+    const commentList = document.createElement('ul');
+    commentList.classList.add('comment-list');
+    
+    // Recupera e mostra i commenti per la foto corrente
+    loadComments(photoId, commentList);
+
+    commentSection.appendChild(commentInput);
+    commentSection.appendChild(submitCommentBtn);
+    commentSection.appendChild(commentList);
+
+    photoContainer.appendChild(img);
+    photoContainer.appendChild(commentSection);
+    photoGrid.appendChild(photoContainer);
+}
+
+// Funzione per salvare il commento su Firestore
+async function saveCommentToFirestore(photoId, commentText) {
     try {
-        await addDoc(collection(db, "photos"), {
-            url: imgUrl,
+        await addDoc(collection(db, "comments"), {
+            photoId: photoId,
+            comment: commentText,
             timestamp: serverTimestamp()
         });
-        console.log("Immagine salvata nel database");
+        console.log("Commento salvato nel database");
     } catch (error) {
-        console.error("Errore nel salvare l'immagine:", error);
+        console.error("Errore nel salvare il commento:", error);
     }
 }
 
-// Funzione per caricare l'immagine su Cloudinary
-function uploadToCloudinary(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'public_upload'); // Sostituisci con il tuo upload_preset
-
-    fetch('https://api.cloudinary.com/v1_1/dp74wkxko/image/upload', { // Sostituisci con il tuo cloud name
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('File caricato su Cloudinary:', data.secure_url);
-        saveImageUrlToFirestore(data.secure_url); // Salva l'URL nel database Firestore
-        addPhotoToGallery(data.secure_url); // Mostra l'immagine nella galleria
-    })
-    .catch(error => {
-        console.error('Errore nel caricamento:', error);
-    });
+// Funzione per caricare i commenti dal database
+async function loadComments(photoId, commentList) {
+    try {
+        const q = query(collection(db, "comments"), where("photoId", "==", photoId), orderBy("timestamp", "asc"));
+        const querySnapshot = await getDocs(q);
+        commentList.innerHTML = ''; // Svuota i commenti precedenti
+        querySnapshot.forEach((doc) => {
+            const comment = doc.data().comment;
+            const li = document.createElement('li');
+            li.textContent = comment;
+            commentList.appendChild(li);
+        });
+    } catch (error) {
+        console.error("Errore nel recuperare i commenti:", error);
+    }
 }
 
 // Funzione per caricare le immagini da Firestore all'avvio della pagina
@@ -59,65 +82,11 @@ async function loadImagesFromFirestore() {
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
             const imgUrl = doc.data().url;
-            addPhotoToGallery(imgUrl); // Mostra ogni immagine nella galleria
+            const photoId = doc.id; // ID della foto usato per i commenti
+            addPhotoToGallery(imgUrl, photoId); // Mostra ogni immagine nella galleria
         });
     } catch (error) {
         console.error("Errore nel recuperare le immagini:", error);
     }
 }
 
-// Carica le immagini quando la pagina viene caricata
-window.onload = loadImagesFromFirestore;
-
-// Seleziona gli elementi
-const uploadBtn = document.getElementById('uploadBtn');
-const fileInput = document.getElementById('fileInput');
-const photoGrid = document.getElementById('photoGrid');
-
-// Gestisci l'evento del clic sul pulsante di caricamento
-uploadBtn.addEventListener('click', () => {
-    fileInput.click(); // Simula il clic sul campo file input
-});
-
-// Seleziona gli elementi della lightbox
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightboxImg');
-const closeBtn = document.querySelector('.lightbox .close');
-const lightboxDownloadLink = document.getElementById('lightboxDownloadLink');
-
-// Funzione per aprire la lightbox
-function openLightbox(imgSrc) {
-    lightboxImg.src = imgSrc;
-    lightbox.style.display = 'flex';
-    lightboxDownloadLink.href = imgSrc;
-    lightboxDownloadLink.style.display = 'block';
-}
-
-// Funzione per chiudere la lightbox
-function closeLightbox() {
-    lightbox.style.display = 'none';
-    lightboxDownloadLink.style.display = 'none';
-}
-
-// Aggiungi listener per chiudere la lightbox
-closeBtn.addEventListener('click', closeLightbox);
-lightbox.addEventListener('click', (event) => {
-    if (event.target === lightbox) closeLightbox();
-});
-
-// Gestisci il caricamento di file
-fileInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        uploadToCloudinary(file); // Carica l'immagine su Cloudinary
-    }
-});
-
-// Funzione per aggiungere l'immagine alla galleria
-function addPhotoToGallery(imgUrl) {
-    const img = document.createElement('img');
-    img.src = imgUrl;
-    img.alt = 'Foto Matrimonio';
-    img.addEventListener('click', () => openLightbox(imgUrl)); // Aggiungi l'evento per aprire la lightbox
-    photoGrid.appendChild(img);
-}
