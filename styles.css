@@ -1,0 +1,118 @@
+/* Imposta le proprietà generali del body */
+body {
+    font-family: Arial, sans-serif;
+    background: url('sfondo.png') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
+
+/* Contenitore principale */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+}
+
+/* Stile per la foto in alto */
+.header-photo img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* Galleria fotografica */
+.gallery h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #6e9686;
+}
+
+#gallerySubtitle {
+    font-size: 18px;
+    color: #856c4e;
+    text-align: center;
+    margin: 10px 0;
+    font-family: 'Lobster', cursive;
+}
+
+/* Griglia di foto */
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.photo-grid img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+/* Pulsante di caricamento */
+#uploadBtn {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%);
+    background-color: #6e9686;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#uploadBtn:hover {
+    background-color: #3f6355;
+}
+
+/* Lightbox - Visualizzazione immagini a schermo intero */
+.lightbox {
+    position: fixed;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 10px;
+}
+
+.lightbox .close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Pulsante di download */
+.download-button {
+    display: block;
+    margin-top: 10px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.download-button:hover {
+    background-color: #45a049;
+}
