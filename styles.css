@@ -123,8 +123,31 @@ body {
     border-radius: 5px;
     font-size: 16px;
 }
-
 .download-button:hover {
     background-color: #45a049;
 }
+
+#copyRightText {
+    position: fixed; /* Per mantenere il testo fisso in basso a destra */
+    bottom: 10px; /* Distanza dal fondo della pagina */
+    right: 10px; /* Distanza dal lato destro */
+    font-size: 0.8em; /* Ridimensionamento per renderlo discreto */
+    color: #d4af37; /* Colore oro */
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    opacity: 0; /* Inizialmente invisibile */
+    animation: fadeInText 2s ease forwards; /* Animazione di dissolvenza */
+}
+
+/* Animazione di dissolvenza */
+@keyframes fadeInText {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+
 
