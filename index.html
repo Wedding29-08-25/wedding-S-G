@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matrimonio - Galleria Fotografica</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css"> 
+
+
 </head>
 <body>
-    <div class="container">
+    
+
+        <div class="container">
         <!-- Foto in alto -->
         <div class="header-photo">
             <img src="Banner.png" alt="Foto del Matrimonio">
         </div>
+ 
 
-        <!-- Galleria Fotografica -->
+<!--Galleria Fotografica -->
         <div class="gallery">
             <h2>Galleria Fotografica</h2>
             <p id="gallerySubtitle">Aiutaci a raccontare la nostra storia! Carica le foto che catturano la magia del nostro giorno speciale.</p>
@@ -22,27 +28,30 @@
             </div>
         </div>
 
-     
-<!-- Lightbox -->
+       <!-- Lightbox -->
         <div id="lightbox" class="lightbox" style="display: none;">
             <span class="close">&times;</span>
             <img class="lightbox-content" id="lightboxImg">
-            
+            <a id="lightboxDownloadLink" href="" download="foto_matrimonio.jpg" style="display: none;" class="download-button">Scarica</a>
         </div>
-      
+
 
         <!-- Pulsante di caricamento -->
         <button id="uploadBtn">Carica Foto</button>
         <input type="file" id="fileInput" accept="image/*" style="display: none;">
     </div>
 
-    <!-- Firebase App (core SDK) -->
+    
+
+    <!-- Firebase e JavaScript del sito -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+    <script src="scripts.js" type="module"></script> <!-- Script principale per Firebase -->
+    <script src="script.js"></script> <!-- Script per il pop-up e il caricamento -->
 
-    <!-- Importa il tuo script personalizzato -->
-    <script src="scripts.js" type="module"></script>
-   <h7 id="copyRightText">@2024, F.M. Vella</h7>
+    <h7 id="copyRightText">@2024, F.M. Vella</h7>
 </body>
 </html>
+
+     
