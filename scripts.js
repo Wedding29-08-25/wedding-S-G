@@ -89,9 +89,7 @@ const lightboxDownloadLink = document.getElementById('lightboxDownloadLink');
 function openLightbox(imgSrc) {
     lightboxImg.src = imgSrc;
     lightbox.style.display = 'flex';
-    lightboxDownloadLink.href = imgSrc;
-    lightboxDownloadLink.style.display = 'block';
-}
+   
 
 
 // Funzione per chiudere la lightbox
