@@ -111,21 +111,7 @@ body {
     cursor: pointer;
 }
 
-/* Pulsante di download */
-.download-button {
-    display: block;
-    margin-top: 10px;
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 16px;
-}
-.download-button:hover {
-    background-color: #45a049;
-}
+
 
 #copyRightText {
     position: fixed; /* Mantiene il testo fisso in basso */
