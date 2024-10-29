@@ -89,13 +89,15 @@ const lightboxDownloadLink = document.getElementById('lightboxDownloadLink');
 function openLightbox(imgSrc) {
     lightboxImg.src = imgSrc;
     lightbox.style.display = 'flex';
-   
-
+    lightboxDownloadLink.href = imgSrc;
+    lightboxDownloadLink.style.display = 'block';
+}
 
 // Funzione per chiudere la lightbox
 function closeLightbox() {
     lightbox.style.display = 'none';
-   
+    lightboxDownloadLink.style.display = 'none';
+}
 
 // Aggiungi listener per chiudere la lightbox
 closeBtn.addEventListener('click', closeLightbox);
@@ -119,5 +121,4 @@ function addPhotoToGallery(imgUrl) {
     img.addEventListener('click', () => openLightbox(imgUrl)); // Aggiungi l'evento per aprire la lightbox
     photoGrid.appendChild(img);
 }
-
 
