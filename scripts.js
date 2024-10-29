@@ -85,6 +85,11 @@ const lightboxImg = document.getElementById('lightboxImg');
 const closeBtn = document.querySelector('.lightbox .close');
 const lightboxDownloadLink = document.getElementById('lightboxDownloadLink');
 
+// Funzione per aprire la lightbox
+function openLightbox(imgSrc) {
+    lightboxImg.src = imgSrc;
+    lightbox.style.display = 'flex';
+}
 
 
 // Funzione per chiudere la lightbox
