@@ -130,9 +130,8 @@ body {
 #copyRightText {
     position: fixed; /* Mantiene il testo fisso in basso */
     bottom: 10px; /* Distanza dal fondo della pagina */
-    left:10%; /* Centra l'elemento a metà della pagina */
-    transform: translateX(-50%); /* Sposta l'elemento esattamente al centro */
-    font-size: 0.6em; /* Ridimensionamento per renderlo discreto */
+    left: 10px !important; /* Forza il posizionamento a sinistra */
+    font-size: 0.6em; /* Riduce la dimensione del testo per renderlo discreto */
     color: #d4af37; /* Colore oro */
     font-weight: bold;
     font-family: Arial, sans-serif;
@@ -146,7 +145,7 @@ body {
         opacity: 0;
     }
     100% {
-        opacity: 2;
+        opacity: 1;
     }
 }
 
