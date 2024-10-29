@@ -95,8 +95,7 @@ function openLightbox(imgSrc) {
 // Funzione per chiudere la lightbox
 function closeLightbox() {
     lightbox.style.display = 'none';
-    lightboxDownloadLink.style.display = 'none';
-}
+   
 
 // Aggiungi listener per chiudere la lightbox
 closeBtn.addEventListener('click', closeLightbox);
