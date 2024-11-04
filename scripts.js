@@ -5,69 +5,72 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-st
 
 // Configurazione di Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyAP2VpQb0xCyOivdpfjP5YAkb8IEV-ebIM",
-  authDomain: "wedding-seg.firebaseapp.com",
-  projectId: "wedding-seg",
-  storageBucket: "wedding-seg.appspot.com",
-  messagingSenderId: "668516668494",
-  appId: "1:668516668494:web:81f361bea8923b3d869f1f",
-  measurementId: "G-8CER5L9FRS"
+  apiKey: "API_KEY",
+  authDomain: "PROJECT_ID.firebaseapp.com",
+  projectId: "PROJECT_ID",
+  storageBucket: "PROJECT_ID.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID",
+  measurementId: "MEASUREMENT_ID"
 };
 
 // Inizializza Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Funzione per salvare l'URL dell'immagine su Firestore
-async function saveImageUrlToFirestore(imgUrl) {
+// Funzione per salvare l'URL del file su Firestore, specificando il tipo (immagine o video)
+async function saveFileUrlToFirestore(fileUrl, fileType) {
     try {
-        await addDoc(collection(db, "photos"), {
-            url: imgUrl,
+        await addDoc(collection(db, "media"), {
+            url: fileUrl,
+            type: fileType, // 'image' o 'video'
             timestamp: serverTimestamp()
         });
-        console.log("Immagine salvata nel database");
+        console.log("File salvato nel database");
     } catch (error) {
-        console.error("Errore nel salvare l'immagine:", error);
+        console.error("Errore nel salvare il file:", error);
     }
 }
 
-// Funzione per caricare l'immagine su Cloudinary
+// Funzione per caricare il file su Cloudinary
 function uploadToCloudinary(file) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', 'public_upload'); // Sostituisci con il tuo upload_preset
 
-    fetch('https://api.cloudinary.com/v1_1/dp74wkxko/image/upload', { // Sostituisci con il tuo cloud name
+    fetch('https://api.cloudinary.com/v1_1/dp74wkxko/upload', { // Cambia l'endpoint per supportare immagini e video
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
         console.log('File caricato su Cloudinary:', data.secure_url);
-        saveImageUrlToFirestore(data.secure_url); // Salva l'URL nel database Firestore
-        addPhotoToGallery(data.secure_url); // Mostra l'immagine nella galleria
+        const fileType = file.type.startsWith('video') ? 'video' : 'image';
+        saveFileUrlToFirestore(data.secure_url, fileType);
+        addMediaToGallery(data.secure_url, fileType); // Aggiunge media alla galleria
     })
     .catch(error => {
         console.error('Errore nel caricamento:', error);
     });
 }
 
-// Funzione per caricare le immagini da Firestore all'avvio della pagina
-async function loadImagesFromFirestore() {
+// Funzione per caricare i media (immagini e video) da Firestore all'avvio della pagina
+async function loadMediaFromFirestore() {
     try {
-        const q = query(collection(db, "photos"), orderBy("timestamp", "desc"));
+        const q = query(collection(db, "media"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
-            const imgUrl = doc.data().url;
-            addPhotoToGallery(imgUrl); // Mostra ogni immagine nella galleria
+            const mediaUrl = doc.data().url;
+            const mediaType = doc.data().type;
+            addMediaToGallery(mediaUrl, mediaType);
         });
     } catch (error) {
-        console.error("Errore nel recuperare le immagini:", error);
+        console.error("Errore nel recuperare i media:", error);
     }
 }
 
-// Carica le immagini quando la pagina viene caricata
-window.onload = loadImagesFromFirestore;
+// Carica i media quando la pagina viene caricata
+window.onload = loadMediaFromFirestore;
 
 // Seleziona gli elementi
 const uploadBtn = document.getElementById('uploadBtn');
@@ -76,7 +79,7 @@ const photoGrid = document.getElementById('photoGrid');
 
 // Gestisci l'evento del clic sul pulsante di caricamento
 uploadBtn.addEventListener('click', () => {
-    fileInput.click(); // Simula il clic sul campo file input
+    fileInput.click();
 });
 
 // Seleziona gli elementi della lightbox
@@ -86,10 +89,20 @@ const closeBtn = document.querySelector('.lightbox .close');
 const lightboxDownloadLink = document.getElementById('lightboxDownloadLink');
 
 // Funzione per aprire la lightbox
-function openLightbox(imgSrc) {
-    lightboxImg.src = imgSrc;
+function openLightbox(mediaUrl, mediaType) {
+    lightboxImg.style.display = mediaType === 'image' ? 'block' : 'none';
+    lightboxImg.src = mediaUrl;
+
+    if (mediaType === 'video') {
+        const video = document.createElement('video');
+        video.src = mediaUrl;
+        video.controls = true;
+        video.className = 'lightbox-content';
+        lightbox.appendChild(video);
+    }
+    
     lightbox.style.display = 'flex';
-    lightboxDownloadLink.href = imgSrc;
+    lightboxDownloadLink.href = mediaUrl;
     lightboxDownloadLink.style.display = 'block';
 }
 
@@ -97,6 +110,8 @@ function openLightbox(imgSrc) {
 function closeLightbox() {
     lightbox.style.display = 'none';
     lightboxDownloadLink.style.display = 'none';
+    const video = document.querySelector('.lightbox-content');
+    if (video) video.remove();
 }
 
 // Aggiungi listener per chiudere la lightbox
@@ -109,16 +124,17 @@ lightbox.addEventListener('click', (event) => {
 fileInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
-        uploadToCloudinary(file); // Carica l'immagine su Cloudinary
+        uploadToCloudinary(file);
     }
 });
 
-// Funzione per aggiungere l'immagine alla galleria
-function addPhotoToGallery(imgUrl) {
-    const img = document.createElement('img');
-    img.src = imgUrl;
-    img.alt = 'Foto Matrimonio';
-    img.addEventListener('click', () => openLightbox(imgUrl)); // Aggiungi l'evento per aprire la lightbox
-    photoGrid.appendChild(img);
+// Funzione per aggiungere immagini e video alla galleria
+function addMediaToGallery(mediaUrl, mediaType) {
+    const mediaElement = document.createElement(mediaType === 'video' ? 'video' : 'img');
+    mediaElement.src = mediaUrl;
+    mediaElement.alt = 'Media Matrimonio';
+    mediaElement.className = 'gallery-item';
+    mediaElement.controls = mediaType === 'video';
+    mediaElement.addEventListener('click', () => openLightbox(mediaUrl, mediaType));
+    photoGrid.appendChild(mediaElement);
 }
-
