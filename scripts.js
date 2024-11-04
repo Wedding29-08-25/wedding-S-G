@@ -5,14 +5,15 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-st
 
 // Configurazione di Firebase
 const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "PROJECT_ID.firebaseapp.com",
-  projectId: "PROJECT_ID",
-  storageBucket: "PROJECT_ID.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID",
-  measurementId: "MEASUREMENT_ID"
+  apiKey: "AIzaSyAP2VpQb0xCyOivdpfjP5YAkb8IEV-ebIM",
+  authDomain: "wedding-seg.firebaseapp.com",
+  projectId: "wedding-seg",
+  storageBucket: "wedding-seg.appspot.com",
+  messagingSenderId: "668516668494",
+  appId: "1:668516668494:web:81f361bea8923b3d869f1f",
+  measurementId: "G-8CER5L9FRS"
 };
+
 
 // Inizializza Firebase
 const app = initializeApp(firebaseConfig);
