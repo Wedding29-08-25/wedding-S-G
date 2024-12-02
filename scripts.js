@@ -121,4 +121,3 @@ function addPhotoToGallery(imgUrl) {
     img.addEventListener('click', () => openLightbox(imgUrl)); // Aggiungi l'evento per aprire la lightbox
     photoGrid.appendChild(img);
 }
-
