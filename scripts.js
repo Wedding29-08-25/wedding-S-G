@@ -18,53 +18,58 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Funzione per salvare l'URL dell'immagine su Firestore
-async function saveImageUrlToFirestore(imgUrl) {
+async function saveFileUrlToFirestore(fileUrl, fileType) {
     try {
-        await addDoc(collection(db, "photos"), {
-            url: imgUrl,
+        await addDoc(collection(db, "media"), {
+            url: fileUrl,
+            type: fileType.startsWith('image') ? 'image' : 'video',
             timestamp: serverTimestamp()
         });
-        console.log("Immagine salvata nel database");
+        console.log("File salvato nel database");
     } catch (error) {
-        console.error("Errore nel salvare l'immagine:", error);
+        console.error("Errore nel salvare il file:", error);
     }
 }
 
-// Funzione per caricare l'immagine su Cloudinary
 function uploadToCloudinary(file) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', 'public_upload'); // Sostituisci con il tuo upload_preset
 
-    fetch('https://api.cloudinary.com/v1_1/dp74wkxko/image/upload', { // Sostituisci con il tuo cloud name
+    fetch('https://api.cloudinary.com/v1_1/dp74wkxko/upload', { // Sostituisci con il tuo cloud name
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
         console.log('File caricato su Cloudinary:', data.secure_url);
-        saveImageUrlToFirestore(data.secure_url); // Salva l'URL nel database Firestore
-        addPhotoToGallery(data.secure_url); // Mostra l'immagine nella galleria
+        saveFileUrlToFirestore(data.secure_url, file.type); // Salva l'URL nel database Firestore
+        addMediaToGallery(data.secure_url, file.type); // Mostra il file nella galleria
     })
     .catch(error => {
         console.error('Errore nel caricamento:', error);
     });
 }
 
+
 // Funzione per caricare le immagini da Firestore all'avvio della pagina
-async function loadImagesFromFirestore() {
+async function loadMediaFromFirestore() {
     try {
-        const q = query(collection(db, "photos"), orderBy("timestamp", "desc"));
+        const q = query(collection(db, "media"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
-            const imgUrl = doc.data().url;
-            addPhotoToGallery(imgUrl); // Mostra ogni immagine nella galleria
+            const mediaUrl = doc.data().url;
+            const mediaType = doc.data().type;
+            addMediaToGallery(mediaUrl, mediaType); // Mostra ogni media nella galleria
         });
     } catch (error) {
-        console.error("Errore nel recuperare le immagini:", error);
+        console.error("Errore nel recuperare i media:", error);
     }
 }
+
+// Carica i media quando la pagina viene caricata
+window.onload = loadMediaFromFirestore;
+
 
 // Carica le immagini quando la pagina viene caricata
 window.onload = loadImagesFromFirestore;
@@ -109,7 +114,11 @@ lightbox.addEventListener('click', (event) => {
 fileInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
-        uploadToCloudinary(file); // Carica l'immagine su Cloudinary
+        if (file.type.startsWith('image') || file.type.startsWith('video')) {
+            uploadToCloudinary(file); // Carica il file su Cloudinary
+        } else {
+            alert("Formato non supportato. Carica immagini o video.");
+        }
     }
 });
 
