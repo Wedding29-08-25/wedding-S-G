@@ -67,8 +67,6 @@ async function loadMediaFromFirestore() {
     }
 }
 
-// Carica i media quando la pagina viene caricata
-window.onload = loadMediaFromFirestore;
 
 
 // Carica le immagini quando la pagina viene caricata
@@ -129,4 +127,22 @@ function addPhotoToGallery(imgUrl) {
     img.alt = 'Foto Matrimonio';
     img.addEventListener('click', () => openLightbox(imgUrl)); // Aggiungi l'evento per aprire la lightbox
     photoGrid.appendChild(img);
+}
+
+
+
+
+function addMediaToGallery(mediaUrl, mediaType) {
+    if (mediaType.startsWith('image')) {
+        const img = document.createElement('img');
+        img.src = mediaUrl;
+        img.alt = 'Foto Matrimonio';
+        img.addEventListener('click', () => openLightbox(mediaUrl)); // Aggiungi l'evento per la lightbox
+        photoGrid.appendChild(img);
+    } else if (mediaType.startsWith('video')) {
+        const video = document.createElement('video');
+        video.src = mediaUrl;
+        video.controls = true; // Mostra i controlli per i video
+        photoGrid.appendChild(video);
+    }
 }
